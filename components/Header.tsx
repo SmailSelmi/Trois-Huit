@@ -127,7 +127,7 @@ export default function Header({
 
         <div className="flex items-center gap-2">
           <div className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse" />
-          <span className="text-lg font-medium font-mono text-slate-100">
+          <span className="text-xl font-medium font-mono text-slate-100">
             {currentTime.toLocaleTimeString("en-US", {
               hour12: false,
               hour: "2-digit",
