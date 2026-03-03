@@ -16,7 +16,13 @@ self.addEventListener('install', (event) => {
       );
     })
   );
-  self.skipWaiting();
+  // Manual skip waiting via message from client
+});
+
+self.addEventListener('message', (event) => {
+  if (event.data && event.data.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
 });
 
 self.addEventListener('activate', (event) => {
