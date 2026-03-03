@@ -12,6 +12,7 @@ import {
   Plane,
   Download,
   Loader2,
+  Calendar,
 } from "lucide-react";
 import MonthGrid from "./MonthGrid";
 import { getHolidayForDate } from "@/lib/dateUtils";
@@ -38,12 +39,23 @@ interface CalendarViewProps {
   isExporting?: boolean;
 }
 
-const SHIFT_ICONS: Record<ShiftType, React.ReactNode> = {
-  day: <Moon size={12} className="text-amber-400" />,
-  evening: <Sun size={12} className="text-purple-400" />,
-  night: <Moon size={12} className="text-blue-400" />,
-  rest: <Coffee size={12} className="text-slate-500" />,
-  leave: <Plane size={12} className="text-emerald-400" />,
+import { Briefcase } from "lucide-react";
+
+const getShiftIcons = (
+  systemType: string,
+): Record<ShiftType, React.ReactNode> => {
+  const is5x2 = systemType === "5x2_admin";
+  return {
+    day: is5x2 ? (
+      <Briefcase size={12} className="text-blue-400" />
+    ) : (
+      <Sun size={12} className="text-amber-400" />
+    ),
+    evening: null, // User requested to remove icon from evening shifts
+    night: <Moon size={12} className="text-blue-400" />,
+    rest: <Coffee size={12} className="text-slate-500" />,
+    leave: <Plane size={12} className="text-emerald-400" />,
+  };
 };
 
 export default function CalendarView({
@@ -73,18 +85,10 @@ export default function CalendarView({
   const today = startOfDay(new Date());
 
   const handleDismissAnnouncement = () => {
-    const currentDismissals =
-      settings.announcementDismissals?.["calibration_feature"] || 0;
-    updateSettings({
-      announcementDismissals: {
-        ...settings.announcementDismissals,
-        ["calibration_feature"]: currentDismissals + 1,
-      },
-    });
+    updateSettings({ hasSeenCalendarTip: true });
   };
 
-  const showAnnouncement =
-    (settings.announcementDismissals?.["calibration_feature"] || 0) < 3;
+  const showAnnouncement = !settings.hasSeenCalendarTip;
 
   const scrollToToday = React.useCallback((instant = false) => {
     if (todayRef.current) {
@@ -128,8 +132,8 @@ export default function CalendarView({
               ) : (
                 <Download size={14} />
               )}
-              <span className="text-[10px] font-black uppercase">
-                {isExporting ? "..." : "تحميل"}
+              <span className="text-[10px] font-black uppercase tracking-wider">
+                {isExporting ? "..." : "تحميل الجدول"}
               </span>
             </button>
           )}
@@ -143,8 +147,8 @@ export default function CalendarView({
             ) : (
               <LayoutGrid size={14} />
             )}
-            <span className="text-[10px] font-black uppercase">
-              {isExpanded ? "الشريط" : "الشبكة"}
+            <span className="text-[10px] font-black uppercase tracking-wider">
+              {isExpanded ? "عرض الأسبوع" : "عرض الشهر"}
             </span>
           </button>
         </div>
@@ -188,7 +192,6 @@ export default function CalendarView({
             key="strip"
             ref={scrollRef}
             className="flex gap-3 overflow-x-auto no-scrollbar snap-x snap-mandatory px-6 py-4 animate-fade-in"
-            dir="rtl"
           >
             {days.map((date, idx) => {
               const isSelected = isSameDay(date, selectedDate);
@@ -205,6 +208,10 @@ export default function CalendarView({
                 workDurationExtension,
               );
               const holiday = getHolidayForDate(date);
+              const dateStr = format(date, "yyyy-MM-dd");
+              const hasEvent = (settings.calendarEvents || []).some(
+                (e) => e.date === dateStr,
+              );
 
               return (
                 <button
@@ -222,7 +229,7 @@ export default function CalendarView({
                   className={`
                     flex-shrink-0 w-16 h-24 rounded-2xl flex flex-col items-center justify-center gap-2
                     snap-center transition-all duration-300 relative
-                    ${isSelected ? "border scale-105" : "bg-white/[0.02] border border-transparent"}
+                    ${isSelected ? "border scale-105" : isToday ? "bg-white/[0.02] border border-blue-500/50" : "bg-white/[0.02] border border-transparent"}
                   `}
                 >
                   <span className="text-[10px] font-black text-slate-500 capitalize">
@@ -230,7 +237,7 @@ export default function CalendarView({
                   </span>
                   <div className="relative flex flex-col items-center">
                     <span
-                      className={`text-xl font-black font-mono ${isSelected ? "text-white" : "text-slate-400"}`}
+                      className={`text-xl font-black font-mono ${isSelected ? "text-white" : isToday ? "text-blue-400" : "text-slate-400"}`}
                     >
                       {format(date, "d")}
                     </span>
@@ -242,9 +249,12 @@ export default function CalendarView({
                         {holiday.icon}
                       </span>
                     )}
+                    {hasEvent && (
+                      <div className="absolute -top-1 -left-2 w-1.5 h-1.5 rounded-full bg-amber-400 shadow-[0_0_5px_rgba(251,191,36,0.5)]" />
+                    )}
                   </div>
                   <div className="flex items-center justify-center h-4">
-                    {SHIFT_ICONS[shiftType]}
+                    {getShiftIcons(systemType)[shiftType]}
                   </div>
 
                   {isToday && !isSelected && (

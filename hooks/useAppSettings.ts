@@ -18,11 +18,21 @@ export interface AppSettings {
   accentColor: AccentColor; // primary glow/highlight color
   profileImage?: string | null;
   dismissedAnnouncements: string[]; // Legacy
-  announcementDismissals: Record<string, number>;
+  hasSeenVacationTip: boolean;
+  hasSeenCalendarTip: boolean;
   annualLeaveTotal: number;
   annualLeaveBlocks: { id: string; start: string; end: string }[];
   workDurationExtension: number; // days added to current cycle
   osNotifications: boolean;
+  afternoonStart: string; // "13:00" or "14:00"
+  afternoonEnd: string; // "16:00" or "17:00"
+  industrialMorningStart: string;
+  industrialMorningEnd: string;
+  industrialEveningStart: string;
+  industrialEveningEnd: string;
+  industrialNightStart: string;
+  industrialNightEnd: string;
+  calendarEvents: { id: string; date: string; title: string; time: string }[];
 }
 
 const STORAGE_KEY = "trois_huit_settings";
@@ -42,11 +52,21 @@ const DEFAULTS: AppSettings = {
   accentColor: "blue",
   profileImage: null,
   dismissedAnnouncements: [],
-  announcementDismissals: {},
+  hasSeenVacationTip: false,
+  hasSeenCalendarTip: false,
   annualLeaveTotal: 30,
   annualLeaveBlocks: [],
   workDurationExtension: 0,
   osNotifications: false,
+  afternoonStart: "13:00",
+  afternoonEnd: "16:00",
+  industrialMorningStart: "07:00",
+  industrialMorningEnd: "13:00",
+  industrialEveningStart: "13:00",
+  industrialEveningEnd: "20:00",
+  industrialNightStart: "20:00",
+  industrialNightEnd: "07:00",
+  calendarEvents: [],
 };
 
 export const useAppSettings = () => {

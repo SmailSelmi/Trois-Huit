@@ -27,9 +27,8 @@ export const useScheduleExport = () => {
         },
       });
 
-      const monthLabel = format(month, "MMMM-yyyy", { locale: arDZ });
       const link = document.createElement("a");
-      link.download = `schedule-${monthLabel}.png`;
+      link.download = `trois-huit-calendar-${Date.now()}.png`;
       link.href = dataUrl;
       link.click();
     } catch (err) {

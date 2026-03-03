@@ -4,7 +4,7 @@ import Script from "next/script";
 import "./globals.css";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import ServiceWorkerRegistration from "@/components/ServiceWorkerRegistration";
-import InstallPromptBanner from "@/components/InstallPromptBanner";
+import InstallPrompt from "@/components/InstallPrompt";
 import { InstallProvider } from "@/context/InstallContext";
 import type { Metadata, Viewport } from "next";
 
@@ -93,7 +93,7 @@ export default function RootLayout({
             <ServiceWorkerRegistration />
             <ThemeAccentApplier />
             {children}
-            <InstallPromptBanner />
+            <InstallPrompt />
           </InstallProvider>
         </ThemeProvider>
       </body>

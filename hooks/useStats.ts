@@ -52,9 +52,8 @@ export function useStats(
     const monthEnd = endOfMonth(today);
     const daysInMonth = eachDayOfInterval({ start: monthStart, end: monthEnd });
 
-    const shiftData = daysInMonth.map((date) => ({
-      date,
-      type: getShiftForDate(
+    const getTypeLinked = (date: Date): ShiftType => {
+      const type = getShiftForDate(
         date,
         cycleStartDate,
         systemType,
@@ -64,7 +63,16 @@ export function useStats(
         addRouteDays,
         annualLeaveBlocks,
         workDurationExtension,
-      ),
+      );
+      if (systemType === "3x8_industrial" && type === "night") {
+        return "day";
+      }
+      return type;
+    };
+
+    const shiftData = daysInMonth.map((date) => ({
+      date,
+      type: getTypeLinked(date),
     }));
 
     let workDays = 0;
@@ -80,17 +88,7 @@ export function useStats(
     };
 
     daysInMonth.forEach((date) => {
-      const shiftType = getShiftForDate(
-        date,
-        cycleStartDate,
-        systemType,
-        initialCycleDay,
-        workDuration,
-        vacationDuration,
-        addRouteDays,
-        annualLeaveBlocks,
-        workDurationExtension,
-      );
+      const shiftType = getTypeLinked(date);
       distribution[shiftType]++;
 
       const isWork = ["day", "evening", "night"].includes(shiftType);
@@ -117,17 +115,7 @@ export function useStats(
       const date = addDays(today, -(29 - i));
       return {
         date,
-        type: getShiftForDate(
-          date,
-          cycleStartDate,
-          systemType,
-          initialCycleDay,
-          workDuration,
-          vacationDuration,
-          addRouteDays,
-          annualLeaveBlocks,
-          workDurationExtension,
-        ),
+        type: getTypeLinked(date),
       };
     });
 
@@ -135,17 +123,7 @@ export function useStats(
     let streak = 0;
     let checkingDate = today;
     while (true) {
-      const type = getShiftForDate(
-        checkingDate,
-        cycleStartDate,
-        systemType,
-        initialCycleDay,
-        workDuration,
-        vacationDuration,
-        addRouteDays,
-        annualLeaveBlocks,
-        workDurationExtension,
-      );
+      const type = getTypeLinked(checkingDate);
       if (["day", "evening", "night"].includes(type)) {
         streak += type === "day" && systemType === "3x8_industrial" ? 2 : 1;
         checkingDate = addDays(checkingDate, -1);
@@ -180,17 +158,7 @@ export function useStats(
 
     // Scan backward to find the start of the current work block
     while (true) {
-      const type = getShiftForDate(
-        backtrackDate,
-        cycleStartDate,
-        systemType,
-        initialCycleDay,
-        workDuration,
-        vacationDuration,
-        addRouteDays,
-        annualLeaveBlocks,
-        workDurationExtension,
-      );
+      const type = getTypeLinked(backtrackDate);
       if (type !== "leave") {
         currentWorkBlockStart = backtrackDate;
         backtrackDate = addDays(backtrackDate, -1);

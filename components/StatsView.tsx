@@ -25,16 +25,53 @@ import {
    TROIS HUIT — Statistics Page v3 — Premium Redesign
    ───────────────────────────────────────────────────────────────────────────── */
 
-// ── Shift meta ────────────────────────────────────────────────────────────────
-const SHIFT_META: Record<
+// ── Helper to get Shift meta based on system type ──────────────────────────
+const getShiftMeta = (
+  systemType: string,
+): Record<
   ShiftType,
-  { label: string; icon: string; color: string; hours: number }
-> = {
-  day: { label: "صباح + ليل", icon: "☀️", color: "#f59e0b", hours: 8 },
-  evening: { label: "عمل مسائية", icon: "", color: "#f97316", hours: 8 },
-  night: { label: "ليلية", icon: "🌙", color: "#818cf8", hours: 8 },
-  rest: { label: "راحة", icon: "🛡️", color: "#10b981", hours: 0 },
-  leave: { label: "إجازة", icon: "✈️", color: "#64748b", hours: 0 },
+  { label: string; icon: React.ReactNode; color: string; hours: number }
+> => {
+  const is5x2 = systemType === "5x2_admin";
+  return {
+    day: is5x2
+      ? {
+          label: "عمل يومي",
+          icon: <Briefcase size={20} />,
+          color: "#3B82F6",
+          hours: 8,
+        }
+      : {
+          label: "صباح + ليل",
+          icon: <Sun size={20} />,
+          color: "#f59e0b",
+          hours: 8,
+        },
+    evening: {
+      label: "عمل مسائية",
+      icon: <Sun size={20} />,
+      color: "#f97316",
+      hours: 8,
+    },
+    night: {
+      label: "ليلية",
+      icon: <Moon size={20} />,
+      color: "#818cf8",
+      hours: 8,
+    },
+    rest: {
+      label: "راحة",
+      icon: <Coffee size={20} />,
+      color: "#10b981",
+      hours: 0,
+    },
+    leave: {
+      label: "إجازة",
+      icon: <Plane size={20} />,
+      color: "#64748b",
+      hours: 0,
+    },
+  };
 };
 
 // ── Local Glass primitive ─────────────────────────────────────────────────────
@@ -187,12 +224,14 @@ function HistoryRow({
   date,
   shiftType,
   delay,
+  systemType,
 }: {
   date: Date;
   shiftType: ShiftType;
   delay: number;
+  systemType: string;
 }) {
-  const meta = SHIFT_META[shiftType];
+  const meta = getShiftMeta(systemType)[shiftType];
   const dateStr = date.toLocaleDateString("ar-DZ", {
     weekday: "short",
     day: "numeric",
@@ -296,12 +335,13 @@ export default function StatsView({ settings }: StatsViewProps) {
 
   // Distribution for donut
   const totalDays = stats.daysInMonthCount;
+  const currentMeta = getShiftMeta(settings.systemType);
   const donutSlices = [
-    { color: SHIFT_META.day.color, value: stats.distribution.day },
-    { color: SHIFT_META.evening.color, value: stats.distribution.evening },
-    { color: SHIFT_META.night.color, value: stats.distribution.night },
-    { color: SHIFT_META.rest.color, value: stats.distribution.rest },
-    { color: SHIFT_META.leave.color, value: stats.distribution.leave },
+    { color: currentMeta.day.color, value: stats.distribution.day },
+    { color: currentMeta.evening.color, value: stats.distribution.evening },
+    { color: currentMeta.night.color, value: stats.distribution.night },
+    { color: currentMeta.rest.color, value: stats.distribution.rest },
+    { color: currentMeta.leave.color, value: stats.distribution.leave },
   ];
 
   // History list data
@@ -390,19 +430,19 @@ export default function StatsView({ settings }: StatsViewProps) {
                     حالة اليوم
                   </div>
                   <div className="text-2xl font-black text-slate-100 flex items-center gap-2">
-                    {SHIFT_META[todayShift].icon}{" "}
-                    {formatShiftLabel(SHIFT_META[todayShift].label)}
+                    {currentMeta[todayShift].icon}{" "}
+                    {formatShiftLabel(currentMeta[todayShift].label)}
                   </div>
                   <div className="text-[11px] font-bold text-slate-500 mt-1">
                     {isVacation
                       ? "يوم إجازة سعيد"
                       : isRest
                         ? "راحة مستحقة"
-                        : `${SHIFT_META[todayShift].hours} ساعات عمل`}
+                        : `${currentMeta[todayShift].hours} ساعات عمل`}
                   </div>
                 </div>
                 <div className="text-5xl opacity-80">
-                  {SHIFT_META[todayShift].icon}
+                  {currentMeta[todayShift].icon}
                 </div>
               </div>
             </GlassCard>
@@ -552,10 +592,10 @@ export default function StatsView({ settings }: StatsViewProps) {
                     <div key={type} className="flex items-center gap-2">
                       <div
                         className="w-2 h-2 rounded-full shrink-0"
-                        style={{ backgroundColor: SHIFT_META[type].color }}
+                        style={{ backgroundColor: currentMeta[type].color }}
                       />
                       <span className="text-[10px] font-bold text-slate-400 flex-1">
-                        {formatShiftLabel(SHIFT_META[type].label)}
+                        {formatShiftLabel(currentMeta[type].label)}
                       </span>
                       <span className="font-mono text-[10px] font-black text-slate-300">
                         {n(count)}
@@ -622,6 +662,7 @@ export default function StatsView({ settings }: StatsViewProps) {
                 date={row.date}
                 shiftType={row.shiftType as ShiftType}
                 delay={i * 0.04}
+                systemType={settings.systemType}
               />
             ))}
           </div>
@@ -644,6 +685,7 @@ export default function StatsView({ settings }: StatsViewProps) {
                 date={row.date}
                 shiftType={row.shiftType as ShiftType}
                 delay={i * 0.04}
+                systemType={settings.systemType}
               />
             ))}
           </div>

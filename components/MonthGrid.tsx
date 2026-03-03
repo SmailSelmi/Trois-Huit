@@ -36,15 +36,24 @@ interface MonthGridProps {
   onMonthChange?: (month: Date) => void;
 }
 
-const SHIFT_ICONS: Record<ShiftType, React.ReactNode> = {
-  day: <Moon size={10} className="text-amber-400" />,
-  evening: <Sun size={10} className="text-purple-400" />,
-  night: <Moon size={10} className="text-blue-400" />,
-  rest: <Coffee size={10} className="text-slate-500" />,
-  leave: <Plane size={10} className="text-emerald-400" />,
-};
+import { Briefcase } from "lucide-react";
 
-// SHIFT_LABELS is moved inside component to support i18n
+const getShiftIcons = (
+  systemType: string,
+): Record<ShiftType, React.ReactNode> => {
+  const is5x2 = systemType === "5x2_admin";
+  return {
+    day: is5x2 ? (
+      <Briefcase size={10} className="text-blue-400" />
+    ) : (
+      <Sun size={10} className="text-amber-400" />
+    ),
+    evening: null,
+    night: <Moon size={10} className="text-blue-400" />,
+    rest: <Coffee size={10} className="text-slate-500" />,
+    leave: <Plane size={10} className="text-emerald-400" />,
+  };
+};
 
 const WEEKDAYS = [
   "الأحد",
@@ -93,8 +102,9 @@ export default function MonthGrid({
     setTouchStartX(null);
   };
 
+  const is5x2 = systemType === "5x2_admin";
   const shiftLabels: Record<ShiftType, string> = {
-    day: "صباح + ليل",
+    day: is5x2 ? "عمل يومي" : "صباح + ليل",
     evening: "عمل مسائية",
     night: "ليلية",
     rest: "راحة",
@@ -139,10 +149,7 @@ export default function MonthGrid({
         </h3>
       </div>
 
-      <div
-        className="relative overflow-hidden min-h-[300px] touch-none"
-        dir="ltr"
-      >
+      <div className="relative overflow-hidden min-h-[300px] touch-none">
         <div
           key={currentMonth.toISOString()}
           onTouchStart={handleTouchStart}
@@ -174,6 +181,10 @@ export default function MonthGrid({
               workDurationExtension,
             );
             const holiday = getHolidayForDate(date);
+            const dateStr = format(date, "yyyy-MM-dd");
+            const hasEvent = (settings.calendarEvents || []).some(
+              (e) => e.date === dateStr,
+            );
 
             return (
               <button
@@ -191,13 +202,13 @@ export default function MonthGrid({
                     aspect-square rounded-xl flex flex-col items-center justify-center gap-1 transition-all
                     relative border active:scale-95
                     ${!isCurrentMonth ? "opacity-10 pointer-events-none" : ""}
-                    ${isSelected ? "shadow-lg" : "bg-white/[0.02] border-transparent hover:bg-white/[0.04]"}
+                    ${isSelected ? "shadow-lg" : isToday ? "bg-white/[0.02] border border-blue-500/50" : "bg-white/[0.02] border-transparent hover:bg-white/[0.04]"}
                   `}
               >
                 <div className="relative flex flex-col items-center">
                   <span
                     style={isSelected ? { color: "var(--accent-text)" } : {}}
-                    className={`text-sm font-black font-mono ${isSelected ? "" : isToday ? "text-white" : "text-slate-400"}`}
+                    className={`text-sm font-black font-mono ${isSelected ? "" : isToday ? "text-blue-400" : "text-slate-400"}`}
                   >
                     {format(date, "d")}
                   </span>
@@ -209,10 +220,13 @@ export default function MonthGrid({
                       {holiday.icon}
                     </span>
                   )}
+                  {hasEvent && (
+                    <div className="absolute -bottom-1 left-1 w-1 h-1 rounded-full bg-amber-400 shadow-[0_0_5px_rgba(251,191,36,0.5)]" />
+                  )}
                 </div>
 
                 <div className="flex items-center justify-center h-4">
-                  {SHIFT_ICONS[shiftType]}
+                  {getShiftIcons(systemType)[shiftType]}
                 </div>
 
                 {isToday && !isSelected && (
@@ -228,13 +242,17 @@ export default function MonthGrid({
       </div>
 
       <div className="flex flex-wrap justify-center gap-x-4 gap-y-2 py-3 border-t border-white/5 mt-2">
-        {(["day", "evening", "rest", "leave"] as ShiftType[]).map((type) => (
+        {(
+          (is5x2
+            ? ["day", "rest", "leave"]
+            : ["day", "evening", "rest", "leave"]) as ShiftType[]
+        ).map((type) => (
           <div
             key={type}
             className="flex items-center gap-1.5 opacity-80 scale-95"
           >
             <div className="w-4 h-4 flex items-center justify-center">
-              {SHIFT_ICONS[type]}
+              {getShiftIcons(systemType)[type]}
             </div>
             <span className="text-[9px] text-slate-400 uppercase font-black tracking-wider">
               {formatShiftLabel(shiftLabels[type])}

@@ -64,7 +64,7 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
           onKeyDown={(e) => {
             if (e.key === "Enter" && formData.userName) nextStep();
           }}
-          className="w-full bg-[#0f172a] border border-white/5 rounded-2xl px-6 py-4 text-xl font-black text-center text-slate-100 outline-none focus:border-blue-500/50 focus:bg-blue-500/5 focus:shadow-[0_0_15px_rgba(59,130,246,0.1)] transition-all font-Tajawal"
+          className="w-full bg-white/[0.03] backdrop-blur-md border border-white/10 rounded-2xl px-6 py-4 text-xl font-black text-center text-slate-100 outline-none focus:border-blue-500 focus:bg-blue-500/10 focus:shadow-lg focus:shadow-blue-900/20 transition-all duration-200"
           value={formData.userName}
           onChange={(e) =>
             setFormData({ ...formData, userName: e.target.value })
@@ -75,9 +75,10 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
 
     {
       title: "بداية الدورة",
-      description: "متى بدأت دورتك الحالية؟",
+      description:
+        "حدد تاريخ بداية دورة عملك الحالية بدقة (تاريخ أول يوم عمل في الدورة الحالية).",
       content: (
-        <div className="flex flex-col items-center">
+        <div className="flex flex-col items-center gap-2">
           <DatePickerAr
             selectedDate={new Date(formData.cycleStartDate)}
             onChange={(date) =>
@@ -91,46 +92,7 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
       ),
     },
     {
-      title: "نوع فترة العمل",
-      description: "أي فترة عمل كانت لديك في هذا التاريخ؟",
-      content: (
-        <div className="flex flex-col gap-2">
-          {[
-            {
-              id: 1,
-              label: "اليوم الأول: فترة عمل مسائية",
-              desc: "13:00 - 20:00",
-            },
-            {
-              id: 2,
-              label: "اليوم الثاني: فترة عمل صباح + ليل",
-              desc: "07h-13h / 20h-07h",
-            },
-            { id: 3, label: "اليوم الثالث: راحة", desc: "ابتداءً من 07:00" },
-          ].map((shift) => (
-            <button
-              key={shift.id}
-              onClick={() =>
-                setFormData({ ...formData, initialCycleDay: shift.id })
-              }
-              className={`p-4 rounded-2xl border transition-all text-right flex flex-col ${
-                formData.initialCycleDay === shift.id
-                  ? "bg-blue-600/10 border-blue-500 shadow-lg"
-                  : "bg-white/[0.02] border-white/[0.05] text-slate-500"
-              }`}
-            >
-              <div
-                className={`font-black text-sm ${formData.initialCycleDay === shift.id ? "text-white" : ""}`}
-              >
-                {shift.label}
-              </div>
-              <div className="text-[10px] opacity-60 mt-0.5">{shift.desc}</div>
-            </button>
-          ))}
-        </div>
-      ),
-    },
-    {
+      id: "system",
       title: "نظام العمل",
       description: "اختر نظام الدوام الخاص بك للاستمرار",
       content: (
@@ -152,19 +114,19 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
               onClick={() =>
                 setFormData({ ...formData, systemType: sys.id as SystemType })
               }
-              className={`p-5 rounded-2xl border transition-all flex items-center justify-between text-right ${
+              className={`group p-5 rounded-2xl border transition-all duration-200 active:scale-95 flex items-center justify-between text-start ${
                 formData.systemType === sys.id
-                  ? "bg-blue-600/10 border-blue-500 shadow-lg shadow-blue-500/10"
-                  : "bg-white/[0.02] border-white/[0.05] hover:border-white/10"
+                  ? "bg-blue-500/10 border-blue-500 shadow-lg shadow-blue-900/20"
+                  : "bg-white/[0.03] backdrop-blur-md border-white/10 hover:bg-white/[0.05] hover:border-white/20 text-slate-400"
               }`}
             >
               <div className="flex flex-col gap-1">
                 <div
-                  className={`font-black text-sm ${formData.systemType === sys.id ? "text-blue-400" : "text-slate-200"}`}
+                  className={`font-black text-base ${formData.systemType === sys.id ? "text-blue-400" : "text-slate-200"}`}
                 >
                   {sys.label}
                 </div>
-                <div className="text-[10px] font-bold text-slate-500">
+                <div className="text-xs font-medium text-slate-400 leading-relaxed">
                   {sys.desc}
                 </div>
               </div>
@@ -175,17 +137,68 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
               )}
             </button>
           ))}
-          <div className="p-4 rounded-2xl border border-dashed border-white/5 opacity-40 grayscale flex flex-col gap-1 text-right">
-            <span className="text-xs font-black text-slate-500">
+          <div className="p-4 rounded-2xl border border-dashed border-white/10 opacity-50 grayscale flex flex-col gap-1 text-start">
+            <span className="text-sm font-black text-slate-500 leading-relaxed">
               أنظمة أخرى...
             </span>
-            <span className="text-[9px] font-bold text-slate-600 italic">
+            <span className="text-xs font-medium text-slate-600 italic leading-relaxed">
               قريباً في التحديثات القادمة
             </span>
           </div>
         </div>
       ),
     },
+    ...(formData.systemType === "5x2_admin"
+      ? []
+      : [
+          {
+            id: "initial_day",
+            title: "نوع فترة العمل",
+            description: "أي فترة عمل كانت لديك في هذا التاريخ؟",
+            content: (
+              <div className="flex flex-col gap-2">
+                {[
+                  {
+                    id: 1,
+                    label: "اليوم الأول: فترة عمل مسائية",
+                    desc: "13:00 - 20:00",
+                  },
+                  {
+                    id: 2,
+                    label: "اليوم الثاني: فترة عمل صباح + ليل",
+                    desc: "07h-13h / 20h-07h",
+                  },
+                  {
+                    id: 3,
+                    label: "اليوم الثالث: راحة",
+                    desc: "ابتداءً من 07:00",
+                  },
+                ].map((shift) => (
+                  <button
+                    key={shift.id}
+                    onClick={() =>
+                      setFormData({ ...formData, initialCycleDay: shift.id })
+                    }
+                    className={`group p-4 rounded-2xl border transition-all duration-200 active:scale-95 text-start flex flex-col gap-1 ${
+                      formData.initialCycleDay === shift.id
+                        ? "bg-blue-500/10 border-blue-500 shadow-lg shadow-blue-900/20"
+                        : "bg-white/[0.03] backdrop-blur-md border-white/10 hover:bg-white/[0.05] hover:border-white/20 text-slate-400"
+                    }`}
+                  >
+                    <div
+                      className={`font-black text-base ${formData.initialCycleDay === shift.id ? "text-blue-400" : "text-slate-200"}`}
+                    >
+                      {shift.label}
+                    </div>
+                    <div className="text-xs font-medium opacity-80 leading-relaxed">
+                      {shift.desc}
+                    </div>
+                  </button>
+                ))}
+              </div>
+            ),
+          },
+        ]),
     {
       title: "مدة الدورة",
       description: "حدد عدد أيام العمل والإجازة",
@@ -193,10 +206,10 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
         <div className="flex flex-col gap-6">
           <div className="flex flex-col gap-6">
             <div className="flex flex-col gap-2">
-              <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest text-center">
+              <label className="text-xs font-black text-slate-400 uppercase tracking-widest text-center">
                 أيام العمل
               </label>
-              <div className="flex items-center gap-3 justify-center px-4">
+              <div className="flex justify-center items-center px-4">
                 <button
                   onClick={() =>
                     setFormData({
@@ -204,13 +217,24 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
                       workDuration: Math.max(1, formData.workDuration - 1),
                     })
                   }
-                  className="w-12 h-12 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center hover:bg-white/10 transition-colors text-slate-300 active:scale-95"
+                  className="w-12 h-12 flex items-center justify-center bg-white/[0.02] border border-white/10 hover:bg-white/[0.05] active:scale-95 transition-all text-slate-300 text-2xl font-bold rounded-2xl mx-2"
                 >
-                  <Minus size={20} />
+                  -
                 </button>
-                <div className="w-24 bg-[#0f172a] border border-white/5 rounded-xl py-3 text-center text-xl font-black text-slate-100 shadow-inner">
-                  {formData.workDuration}
-                </div>
+                <input
+                  type="number"
+                  min="1"
+                  max="365"
+                  dir="ltr"
+                  value={formData.workDuration || ""}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      workDuration: parseInt(e.target.value) || 0,
+                    })
+                  }
+                  className="w-full max-w-[120px] bg-white/[0.02] border border-white/10 rounded-2xl py-3 text-center text-3xl font-black text-slate-100 shadow-inner outline-none focus:border-blue-500 focus:bg-blue-500/10 transition-all"
+                />
                 <button
                   onClick={() =>
                     setFormData({
@@ -218,18 +242,18 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
                       workDuration: formData.workDuration + 1,
                     })
                   }
-                  className="w-12 h-12 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center hover:bg-white/10 transition-colors text-slate-300 active:scale-95"
+                  className="w-12 h-12 flex items-center justify-center bg-white/[0.02] border border-white/10 hover:bg-white/[0.05] active:scale-95 transition-all text-slate-300 text-2xl font-bold rounded-2xl mx-2"
                 >
-                  <Plus size={20} />
+                  +
                 </button>
               </div>
             </div>
 
             <div className="flex flex-col gap-2">
-              <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest text-center">
+              <label className="text-xs font-black text-slate-400 uppercase tracking-widest text-center">
                 أيام الإجازة
               </label>
-              <div className="flex items-center gap-3 justify-center px-4">
+              <div className="flex justify-center items-center px-4">
                 <button
                   onClick={() =>
                     setFormData({
@@ -240,13 +264,24 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
                       ),
                     })
                   }
-                  className="w-12 h-12 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center hover:bg-white/10 transition-colors text-slate-300 active:scale-95"
+                  className="w-12 h-12 flex items-center justify-center bg-white/[0.02] border border-white/10 hover:bg-white/[0.05] active:scale-95 transition-all text-slate-300 text-2xl font-bold rounded-2xl mx-2"
                 >
-                  <Minus size={20} />
+                  -
                 </button>
-                <div className="w-24 bg-[#0f172a] border border-white/5 rounded-xl py-3 text-center text-xl font-black text-slate-100 shadow-inner">
-                  {formData.vacationDuration}
-                </div>
+                <input
+                  type="number"
+                  min="1"
+                  max="365"
+                  dir="ltr"
+                  value={formData.vacationDuration || ""}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      vacationDuration: parseInt(e.target.value) || 0,
+                    })
+                  }
+                  className="w-full max-w-[120px] bg-white/[0.02] border border-white/10 rounded-2xl py-3 text-center text-3xl font-black text-slate-100 shadow-inner outline-none focus:border-blue-500 focus:bg-blue-500/10 transition-all"
+                />
                 <button
                   onClick={() =>
                     setFormData({
@@ -254,9 +289,9 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
                       vacationDuration: formData.vacationDuration + 1,
                     })
                   }
-                  className="w-12 h-12 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center hover:bg-white/10 transition-colors text-slate-300 active:scale-95"
+                  className="w-12 h-12 flex items-center justify-center bg-white/[0.02] border border-white/10 hover:bg-white/[0.05] active:scale-95 transition-all text-slate-300 text-2xl font-bold rounded-2xl mx-2"
                 >
-                  <Plus size={20} />
+                  +
                 </button>
               </div>
             </div>
@@ -266,27 +301,27 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
             onClick={() =>
               setFormData({ ...formData, addRouteDays: !formData.addRouteDays })
             }
-            className={`p-4 rounded-2xl border transition-all flex items-center justify-between ${
+            className={`group p-5 rounded-2xl border transition-all duration-200 active:scale-95 flex items-center justify-between text-start ${
               formData.addRouteDays
-                ? "bg-blue-600/10 border-blue-500"
-                : "bg-white/[0.02] border-white/[0.05] text-slate-500"
+                ? "bg-blue-500/10 border-blue-500 shadow-lg shadow-blue-900/20"
+                : "bg-white/[0.03] backdrop-blur-md border-white/10 hover:bg-white/[0.05] hover:border-white/20 text-slate-400"
             }`}
           >
-            <div className="text-right">
+            <div className="flex flex-col gap-1 text-start">
               <div
-                className={`font-black text-sm ${formData.addRouteDays ? "text-white" : ""}`}
+                className={`font-black text-base ${formData.addRouteDays ? "text-blue-400" : "text-slate-200"}`}
               >
                 أيام الطريق (Route Days)
               </div>
-              <div className="text-[10px] opacity-60 mt-0.5">
+              <div className="text-xs font-medium opacity-80 leading-relaxed">
                 إضافة +2 يوم لإجمالي الإجازة
               </div>
             </div>
             <div
-              className={`w-10 h-6 rounded-full relative transition-colors ${formData.addRouteDays ? "bg-blue-600" : "bg-white/10"}`}
+              className={`w-12 h-6 rounded-full relative transition-colors ${formData.addRouteDays ? "bg-blue-500" : "bg-white/10"}`}
             >
               <div
-                className={`w-4 h-4 bg-white rounded-full absolute top-1 right-1 transition-transform ${formData.addRouteDays ? "-translate-x-[16px]" : "translate-x-0"}`}
+                className={`w-4 h-4 bg-white rounded-full absolute top-1 right-1 transition-transform ${formData.addRouteDays ? "-translate-x-[24px]" : "translate-x-0"}`}
               />
             </div>
           </button>
@@ -299,12 +334,15 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
 
   return (
     <div
-      className="fixed inset-0 z-[100] bg-[#020617] flex flex-col items-center justify-start overflow-y-auto p-6 text-right"
+      className="fixed inset-0 z-[100] bg-slate-950 flex flex-col items-center justify-start overflow-y-auto p-6 text-start"
       dir="rtl"
     >
-      <div className="absolute inset-x-0 bottom-0 top-1/2 bg-gradient-to-t from-blue-600/10 to-transparent pointer-events-none" />
+      <div className="absolute inset-x-0 bottom-0 top-1/2 bg-gradient-to-t from-blue-900/20 to-transparent pointer-events-none" />
 
-      <div key={step} className="w-full max-w-md my-auto py-8 animate-fade-in">
+      <div
+        key={step}
+        className="w-full max-w-md my-auto py-8 animate-fade-in flex flex-col gap-6"
+      >
         <GlassCard
           className="p-6 md:p-8 flex flex-col gap-6 md:gap-8 relative overflow-visible"
           glow
@@ -316,10 +354,10 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
                 {`الخطوة ${step} من ${steps.length}`}
               </span>
             </div>
-            <h1 className="text-2xl md:text-3xl font-black text-slate-100 italic">
+            <h1 className="text-2xl md:text-3xl font-black text-slate-100 italic leading-relaxed">
               {currentStep.title}
             </h1>
-            <p className="text-xs md:text-sm font-black text-slate-500">
+            <p className="text-sm md:text-base font-medium text-slate-400 leading-relaxed">
               {currentStep.description}
             </p>
           </div>
@@ -328,27 +366,35 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
             {currentStep.content}
           </div>
 
-          <div className="flex gap-3 mt-4">
+          <div className="flex gap-4 mt-6">
             {step > 1 && (
               <button
                 onClick={prevStep}
-                className="p-4 bg-white/[0.05] rounded-2xl text-slate-400 hover:text-white transition-colors"
+                className="group p-4 bg-white/[0.03] backdrop-blur-md border border-white/10 rounded-2xl text-slate-400 hover:text-white hover:bg-white/[0.05] hover:border-white/20 transition-all duration-200 active:scale-95 flex items-center justify-center"
               >
-                <ChevronRight size={24} />
+                <ChevronRight
+                  size={24}
+                  className="group-hover:translate-x-1 transition-transform"
+                />
               </button>
             )}
 
             <button
               onClick={step === steps.length ? handleFinish : nextStep}
               disabled={step === 1 && !formData.userName}
-              className={`flex-1 py-4 rounded-2xl font-black text-lg shadow-xl flex items-center justify-center gap-2 transition-all active:scale-95 ${
+              className={`group flex-1 py-4 rounded-2xl font-black text-lg shadow-lg flex items-center justify-center gap-2 transition-all duration-200 active:scale-95 ${
                 step === 1 && !formData.userName
-                  ? "bg-white/5 text-slate-600 cursor-not-allowed"
-                  : "bg-blue-600 text-white shadow-blue-900/20"
+                  ? "bg-white/[0.03] backdrop-blur-md border border-white/5 text-slate-500 cursor-not-allowed"
+                  : "bg-blue-600 text-white shadow-blue-900/20 hover:bg-blue-500"
               }`}
             >
               {step === steps.length ? "ابدأ الاستخدام" : "التالي"}
-              {step < steps.length && <ChevronLeft size={20} />}
+              {step < steps.length && (
+                <ChevronLeft
+                  size={20}
+                  className="group-hover:-translate-x-1 transition-transform"
+                />
+              )}
             </button>
           </div>
         </GlassCard>

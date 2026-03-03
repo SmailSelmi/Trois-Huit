@@ -92,14 +92,71 @@ export const useNotifications = (
     settings.notificationLeadTime,
     shiftInfo,
     showNotification,
+    settings.osNotifications,
+  ]);
+
+  const scheduleEventNotifications = useCallback(() => {
+    if (!settings.notifications) return;
+
+    const now = new Date();
+    const cleanups: (() => void)[] = [];
+
+    (settings.calendarEvents || []).forEach((event) => {
+      const eventTimeStr = `${event.date}T${event.time}:00`;
+      const eventTime = parseISO(eventTimeStr);
+      const notificationTime = subMinutes(
+        eventTime,
+        settings.notificationLeadTime,
+      );
+      const notificationId = `event-${event.id}-${settings.notificationLeadTime}`;
+
+      if (
+        isBefore(now, notificationTime) &&
+        !scheduledRef.current.has(notificationId)
+      ) {
+        const delay = notificationTime.getTime() - now.getTime();
+
+        // Schedule if within 24 hours
+        if (delay < 24 * 60 * 60 * 1000) {
+          const timeoutId = setTimeout(() => {
+            if (settings.osNotifications) {
+              sendOSNotification(
+                `تذكير بحدث: ${event.title}`,
+                `لديك حدث مبرمج في تمام الساعة ${event.time}`,
+              );
+            } else {
+              showNotification(`تذكير بحدث: ${event.title}`, {
+                body: `لديك حدث مبرمج في تمام الساعة ${event.time}`,
+                tag: "event-reminder",
+                renotify: true,
+              } as any);
+            }
+            scheduledRef.current.delete(notificationId);
+          }, delay);
+
+          scheduledRef.current.add(notificationId);
+          cleanups.push(() => clearTimeout(timeoutId));
+        }
+      }
+    });
+
+    return () => cleanups.forEach((c) => c());
+  }, [
+    settings.notifications,
+    settings.calendarEvents,
+    settings.notificationLeadTime,
+    settings.osNotifications,
+    showNotification,
   ]);
 
   useEffect(() => {
-    const cleanup = scheduleShiftNotifications();
+    const cleanupShift = scheduleShiftNotifications();
+    const cleanupEvent = scheduleEventNotifications();
     return () => {
-      if (cleanup) cleanup();
+      if (cleanupShift) cleanupShift();
+      if (cleanupEvent) cleanupEvent();
     };
-  }, [scheduleShiftNotifications]);
+  }, [scheduleShiftNotifications, scheduleEventNotifications]);
 
   return { requestPermission, showNotification };
 };

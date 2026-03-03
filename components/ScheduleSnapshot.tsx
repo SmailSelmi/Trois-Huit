@@ -112,10 +112,11 @@ export default function ScheduleSnapshot({
         fontFamily: "Tajawal, Arial, sans-serif",
         direction: "rtl",
         boxSizing: "border-box",
-        overflow: "hidden",
+        overflow: "visible", // Prevent truncation during export
         borderRadius: "16px",
         border: "1px solid rgba(255,255,255,0.08)",
         boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.5)",
+        paddingBottom: "16px", // Extra padding to avoid bottom cut-off
       }}
     >
       {/* ── Top rainbow bar ─────────────────────────────────────────────── */}
@@ -334,7 +335,7 @@ export default function ScheduleSnapshot({
       {/* ── Footer ──────────────────────────────────────────────────────── */}
       <div
         style={{
-          padding: "8px 16px 20px",
+          padding: "8px 16px 12px",
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",

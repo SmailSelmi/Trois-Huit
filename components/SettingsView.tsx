@@ -14,7 +14,9 @@ import {
   PieChart,
   Settings as SettingsIcon,
   Plus,
+  Clock,
   Globe,
+  Sun,
 } from "lucide-react";
 import GlassCard from "./GlassCard";
 import DatePickerAr from "./DatePickerAr";
@@ -217,147 +219,302 @@ export default function SettingsView({
             </div>
           </div>
 
-          <div className="flex flex-col gap-2">
-            <label className="text-xs font-medium text-slate-500 uppercase ml-1">
-              فترة العمل في تاريخ المرجع
-            </label>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-              {[
-                { id: 1, label: "اليوم الأول: مسائي (13-20)" },
-                { id: 2, label: "اليوم الثاني: صباحي+ليلي" },
-                { id: 3, label: "اليوم الثالث: راحة" },
-              ].map((s) => (
-                <button
-                  key={s.id}
-                  onClick={() =>
-                    setPendingChange({
-                      key: "initialCycleDay",
-                      value: s.id,
-                      message: `هل أنت متأكد من تغيير يوم البداية إلى ${s.label}؟`,
-                    })
-                  }
-                  className={`py-3 px-2 rounded-xl border flex flex-col items-center justify-center gap-1 transition-all ${
-                    settings.initialCycleDay === s.id
-                      ? "bg-blue-600/10 border-blue-500 text-blue-400"
-                      : "bg-white/5 border-transparent text-slate-500"
-                  }`}
-                >
-                  <span className="text-xs font-medium text-center">
-                    {s.label}
-                  </span>
-                </button>
-              ))}
+          {settings.systemType === "3x8_industrial" ? (
+            <div className="flex flex-col gap-2 animate-fade-in">
+              <label className="text-xs font-medium text-slate-500 uppercase ml-1">
+                فترة العمل في تاريخ المرجع
+              </label>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                {[
+                  { id: 1, label: "اليوم الأول: مسائي (13-20)" },
+                  { id: 2, label: "اليوم الثاني: صباحي+ليلي" },
+                  { id: 3, label: "اليوم الثالث: راحة" },
+                ].map((s) => (
+                  <button
+                    key={s.id}
+                    onClick={() =>
+                      setPendingChange({
+                        key: "initialCycleDay",
+                        value: s.id,
+                        message: `هل أنت متأكد من تغيير يوم البداية إلى ${s.label}؟`,
+                      })
+                    }
+                    className={`py-3 px-2 rounded-xl border flex flex-col items-center justify-center gap-1 transition-all ${
+                      settings.initialCycleDay === s.id
+                        ? "bg-blue-600/10 border-blue-500 text-blue-400"
+                        : "bg-white/5 border-transparent text-slate-500"
+                    }`}
+                  >
+                    <span className="text-xs font-medium text-center">
+                      {s.label}
+                    </span>
+                  </button>
+                ))}
+              </div>
+
+              <div className="flex flex-col gap-4 mt-4 animate-fade-in p-5 rounded-2xl bg-white/[0.02] border border-white/5 shadow-inner">
+                <div className="flex flex-col gap-1 mb-2">
+                  <div className="flex items-center gap-2">
+                    <Clock size={16} className="text-blue-400" />
+                    <h4 className="text-sm font-black text-slate-200">
+                      أوقات الورديات
+                    </h4>
+                  </div>
+                  <p className="text-xs text-slate-500 font-medium">
+                    حدد موعد بداية كل فترة (تتحدد النهاية تلقائياً)
+                  </p>
+                </div>
+
+                {/* Morning Start */}
+                <div className="flex flex-col gap-2">
+                  <label className="text-[10px] font-black uppercase tracking-wider text-slate-400 flex items-center gap-2">
+                    <Sun size={12} className="text-amber-400" /> بداية الفترة
+                    الصباحية
+                  </label>
+                  <div className="grid grid-cols-4 gap-2">
+                    {["05:00", "06:00", "07:00", "08:00"].map((time) => (
+                      <button
+                        key={time}
+                        onClick={() => {
+                          updateSettings({
+                            industrialMorningStart: time,
+                            industrialNightEnd: time,
+                          });
+                        }}
+                        className={`py-2 rounded-xl border text-xs font-black transition-all active:scale-95 ${
+                          (settings.industrialMorningStart || "07:00") === time
+                            ? "bg-amber-500/10 border-amber-500/50 text-amber-400 shadow-lg shadow-amber-500/10"
+                            : "bg-white/[0.03] border-white/10 text-slate-400 hover:bg-white/[0.05]"
+                        }`}
+                      >
+                        {time}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Evening Start */}
+                <div className="flex flex-col gap-2 mt-2">
+                  <label className="text-[10px] font-black uppercase tracking-wider text-slate-400 flex items-center gap-2">
+                    <Sun size={12} className="text-purple-400" /> بداية الفترة
+                    المسائية
+                  </label>
+                  <div className="grid grid-cols-4 gap-2">
+                    {["13:00", "14:00", "15:00", "16:00"].map((time) => (
+                      <button
+                        key={time}
+                        onClick={() => {
+                          updateSettings({
+                            industrialEveningStart: time,
+                            industrialMorningEnd: time,
+                          });
+                        }}
+                        className={`py-2 rounded-xl border text-xs font-black transition-all active:scale-95 ${
+                          (settings.industrialEveningStart || "13:00") === time
+                            ? "bg-purple-500/10 border-purple-500/50 text-purple-400 shadow-lg shadow-purple-500/10"
+                            : "bg-white/[0.03] border-white/10 text-slate-400 hover:bg-white/[0.05]"
+                        }`}
+                      >
+                        {time}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Night Start */}
+                <div className="flex flex-col gap-2 mt-2">
+                  <label className="text-[10px] font-black uppercase tracking-wider text-slate-400 flex items-center gap-2">
+                    <Moon size={12} className="text-blue-400" /> بداية الفترة
+                    الليلية
+                  </label>
+                  <div className="grid grid-cols-4 gap-2">
+                    {["19:00", "20:00", "21:00", "22:00"].map((time) => (
+                      <button
+                        key={time}
+                        onClick={() => {
+                          updateSettings({
+                            industrialNightStart: time,
+                            industrialEveningEnd: time,
+                          });
+                        }}
+                        className={`py-2 rounded-xl border text-xs font-black transition-all active:scale-95 ${
+                          (settings.industrialNightStart || "20:00") === time
+                            ? "bg-blue-500/10 border-blue-500/50 text-blue-400 shadow-lg shadow-blue-500/10"
+                            : "bg-white/[0.03] border-white/10 text-slate-400 hover:bg-white/[0.05]"
+                        }`}
+                      >
+                        {time}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
             </div>
-          </div>
+          ) : (
+            <div className="flex flex-col gap-4 animate-fade-in p-5 rounded-2xl bg-white/[0.02] border border-white/5 shadow-inner">
+              <div className="flex items-center gap-2 mb-1">
+                <Clock size={16} className="text-blue-400" />
+                <h4 className="text-sm font-black text-slate-200">
+                  أوقات الدوام المسائي
+                </h4>
+              </div>
+
+              <div className="flex flex-col gap-2">
+                <label className="text-xs font-bold uppercase text-slate-500">
+                  بداية فترة المساء
+                </label>
+                <div className="grid grid-cols-2 gap-3">
+                  {["13:00", "14:00"].map((time) => (
+                    <button
+                      key={time}
+                      onClick={() => updateSettings({ afternoonStart: time })}
+                      className={`py-3 rounded-xl border text-sm font-black transition-all active:scale-95 ${
+                        (settings.afternoonStart || "13:00") === time
+                          ? "bg-blue-500/10 border-blue-500 text-blue-400 shadow-lg shadow-blue-500/10"
+                          : "bg-white/[0.03] border-white/10 text-slate-400 hover:bg-white/[0.05]"
+                      }`}
+                    >
+                      {time}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="flex flex-col gap-2 mt-2">
+                <label className="text-xs font-bold uppercase text-slate-500">
+                  نهاية فترة المساء
+                </label>
+                <div className="grid grid-cols-3 gap-3">
+                  {["16:00", "16:30", "17:00"].map((time) => (
+                    <button
+                      key={time}
+                      onClick={() => updateSettings({ afternoonEnd: time })}
+                      className={`py-3 rounded-xl border text-sm font-black transition-all active:scale-95 ${
+                        (settings.afternoonEnd || "16:00") === time
+                          ? "bg-blue-500/10 border-blue-500 text-blue-400 shadow-lg shadow-blue-500/10"
+                          : "bg-white/[0.03] border-white/10 text-slate-400 hover:bg-white/[0.05]"
+                      }`}
+                    >
+                      {time}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
         </GlassCard>
       </section>
 
       {/* Rotation Section */}
-      <section className="flex flex-col gap-3">
-        <div className="flex items-center gap-2 px-1">
-          <RotateCcw size={14} className="text-purple-400" />
-          <h3 className="text-xs font-medium text-slate-500 uppercase tracking-[0.2em]">
-            نظام التناوب (Work/Vacation)
-          </h3>
-        </div>
-        <GlassCard className="p-6 flex flex-col gap-6">
-          <div className="grid grid-cols-2 gap-4">
-            <div className="flex flex-col gap-2">
-              <label className="text-xs font-medium text-slate-500 uppercase ml-1">
-                أيام العمل
-              </label>
-              <input
-                type="number"
-                value={localWork || ""}
-                enterKeyHint="done"
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") e.currentTarget.blur();
-                }}
-                onChange={(e) => {
-                  const val = e.target.value;
-                  setLocalWork(val === "" ? 0 : parseInt(val));
-                }}
-                onBlur={() => {
-                  if (localWork !== settings.workDuration) {
-                    if (localWork <= 0) {
-                      setLocalWork(settings.workDuration);
-                      setToastMessage("يجب أن تكون أيام العمل أكثر من 0 ⚠️");
-                      return;
-                    }
-                    setPendingChange({
-                      key: "workDuration",
-                      value: localWork,
-                      message: `هل أنت متأكد من تغيير عدد أيام العمل إلى ${localWork}؟`,
-                    });
-                  }
-                }}
-                className="w-full bg-[#030712] border border-white/5 rounded-xl px-4 py-3 text-sm font-bold text-slate-100 outline-none focus:border-blue-500/50 focus:bg-blue-500/5 focus:shadow-[0_0_15px_rgba(59,130,246,0.1)] transition-all text-center [direction:ltr]"
-              />
-            </div>
-            <div className="flex flex-col gap-2">
-              <label className="text-xs font-medium text-slate-500 uppercase ml-1">
-                أيام الإجازة
-              </label>
-              <input
-                type="number"
-                value={localVacation || ""}
-                enterKeyHint="done"
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") e.currentTarget.blur();
-                }}
-                onChange={(e) => {
-                  const val = e.target.value;
-                  setLocalVacation(val === "" ? 0 : parseInt(val));
-                }}
-                onBlur={() => {
-                  if (localVacation !== settings.vacationDuration) {
-                    if (localVacation <= 0) {
-                      setLocalVacation(settings.vacationDuration);
-                      setToastMessage("يجب أن تكون أيام الإجازة أكثر من 0 ⚠️");
-                      return;
-                    }
-                    setPendingChange({
-                      key: "vacationDuration",
-                      value: localVacation,
-                      message: `هل أنت متأكد من تغيير عدد أيام الإجازة إلى ${localVacation}؟`,
-                    });
-                  }
-                }}
-                className="w-full bg-[#030712] border border-white/5 rounded-xl px-4 py-3 text-sm font-bold text-slate-100 outline-none focus:border-blue-500/50 focus:bg-blue-500/5 focus:shadow-[0_0_15px_rgba(59,130,246,0.1)] transition-all text-center [direction:ltr]"
-              />
-            </div>
+      {settings.systemType === "3x8_industrial" && (
+        <section className="flex flex-col gap-3 animate-fade-in">
+          <div className="flex items-center gap-2 px-1">
+            <RotateCcw size={14} className="text-purple-400" />
+            <h3 className="text-xs font-medium text-slate-500 uppercase tracking-[0.2em]">
+              نظام التناوب (Work/Vacation)
+            </h3>
           </div>
+          <GlassCard className="p-6 flex flex-col gap-6">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="flex flex-col gap-2">
+                <label className="text-xs font-medium text-slate-500 uppercase ml-1">
+                  أيام العمل
+                </label>
+                <input
+                  type="number"
+                  value={localWork || ""}
+                  enterKeyHint="done"
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") e.currentTarget.blur();
+                  }}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    setLocalWork(val === "" ? 0 : parseInt(val));
+                  }}
+                  onBlur={() => {
+                    if (localWork !== settings.workDuration) {
+                      if (localWork <= 0) {
+                        setLocalWork(settings.workDuration);
+                        setToastMessage("يجب أن تكون أيام العمل أكثر من 0 ⚠️");
+                        return;
+                      }
+                      setPendingChange({
+                        key: "workDuration",
+                        value: localWork,
+                        message: `هل أنت متأكد من تغيير عدد أيام العمل إلى ${localWork}؟`,
+                      });
+                    }
+                  }}
+                  className="w-full bg-[#030712] border border-white/5 rounded-xl px-4 py-3 text-sm font-bold text-slate-100 outline-none focus:border-blue-500/50 focus:bg-blue-500/5 focus:shadow-[0_0_15px_rgba(59,130,246,0.1)] transition-all text-center [direction:ltr]"
+                />
+              </div>
+              <div className="flex flex-col gap-2">
+                <label className="text-xs font-medium text-slate-500 uppercase ml-1">
+                  أيام الإجازة
+                </label>
+                <input
+                  type="number"
+                  value={localVacation || ""}
+                  enterKeyHint="done"
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") e.currentTarget.blur();
+                  }}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    setLocalVacation(val === "" ? 0 : parseInt(val));
+                  }}
+                  onBlur={() => {
+                    if (localVacation !== settings.vacationDuration) {
+                      if (localVacation <= 0) {
+                        setLocalVacation(settings.vacationDuration);
+                        setToastMessage(
+                          "يجب أن تكون أيام الإجازة أكثر من 0 ⚠️",
+                        );
+                        return;
+                      }
+                      setPendingChange({
+                        key: "vacationDuration",
+                        value: localVacation,
+                        message: `هل أنت متأكد من تغيير عدد أيام الإجازة إلى ${localVacation}؟`,
+                      });
+                    }
+                  }}
+                  className="w-full bg-[#030712] border border-white/5 rounded-xl px-4 py-3 text-sm font-bold text-slate-100 outline-none focus:border-blue-500/50 focus:bg-blue-500/5 focus:shadow-[0_0_15px_rgba(59,130,246,0.1)] transition-all text-center [direction:ltr]"
+                />
+              </div>
+            </div>
 
-          <div
-            onClick={() => {
-              const newValue = !settings.addRouteDays;
-              updateSettings({ addRouteDays: newValue });
-              setToastMessage(
-                newValue
-                  ? "تم تفعيل أيام الطريق (+2 يوم) 🛣️"
-                  : "تم إلغاء تفعيل أيام الطريق",
-              );
-            }}
-            className={`flex justify-between items-center bg-white/[0.02] border border-white/[0.05] rounded-2xl p-4 cursor-pointer hover:bg-white/[0.04] transition-all group active:scale-[0.98]`}
-          >
-            <div className="flex flex-col">
-              <span className="text-base font-medium text-slate-200 group-hover:text-white transition-colors">
-                أيام الطريق (+2)
-              </span>
-              <span className="text-xs font-medium text-slate-500">
-                إضافة يومين للسفر إلى إجازتك
-              </span>
-            </div>
             <div
-              className={`w-12 h-6 rounded-full transition-all relative p-1 flex items-center ${settings.addRouteDays ? "bg-purple-600/20 border border-purple-500/50" : "bg-white/5 border border-white/10"}`}
+              onClick={() => {
+                const newValue = !settings.addRouteDays;
+                updateSettings({ addRouteDays: newValue });
+                setToastMessage(
+                  newValue
+                    ? "تم تفعيل أيام الطريق (+2 يوم) 🛣️"
+                    : "تم إلغاء تفعيل أيام الطريق",
+                );
+              }}
+              className={`flex justify-between items-center bg-white/[0.02] border border-white/[0.05] rounded-2xl p-4 cursor-pointer hover:bg-white/[0.04] transition-all group active:scale-[0.98]`}
             >
+              <div className="flex flex-col">
+                <span className="text-base font-medium text-slate-200 group-hover:text-white transition-colors">
+                  أيام الطريق (+2)
+                </span>
+                <span className="text-xs font-medium text-slate-500">
+                  إضافة يومين للسفر إلى إجازتك
+                </span>
+              </div>
               <div
-                className={`w-4 h-4 rounded-full shadow-lg z-10 transition-transform duration-300 ${settings.addRouteDays ? "-translate-x-6 bg-purple-500" : "translate-x-0 bg-slate-500"}`}
-              />
+                className={`w-12 h-6 rounded-full transition-all relative p-1 flex items-center ${settings.addRouteDays ? "bg-purple-600/20 border border-purple-500/50" : "bg-white/5 border border-white/10"}`}
+              >
+                <div
+                  className={`w-4 h-4 rounded-full shadow-lg z-10 transition-transform duration-300 ${settings.addRouteDays ? "-translate-x-6 bg-purple-500" : "translate-x-0 bg-slate-500"}`}
+                />
+              </div>
             </div>
-          </div>
-        </GlassCard>
-      </section>
+          </GlassCard>
+        </section>
+      )}
 
       {/* Annual Leave Section */}
       <section className="flex flex-col gap-3">
@@ -738,7 +895,7 @@ export default function SettingsView({
       {pendingChange && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
           <div
-            className="absolute inset-0 bg-black/50 backdrop-blur-sm animate-in fade-in duration-300"
+            className="absolute inset-0 bg-slate-950/80 backdrop-blur-sm animate-in fade-in duration-300"
             onClick={() => setPendingChange(null)}
           />
           <GlassCard className="w-full max-w-sm p-8 relative z-10 animate-in fade-in zoom-in-95 duration-300 flex flex-col gap-6 text-center shadow-2xl overflow-hidden bg-[#0a1628]/95 border-white/[0.06] !backdrop-blur-md">

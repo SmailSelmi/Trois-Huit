@@ -87,13 +87,14 @@ export default function Header({
           {isInstallable && (
             <button
               onClick={promptInstall}
-              className={`w-10 h-10 rounded-full flex items-center justify-center transition-all ${
+              className={`h-10 px-4 rounded-xl flex items-center gap-2 justify-center transition-all ${
                 highlightHeaderIcon
-                  ? "bg-blue-600 text-white animate-pulse ring-4 ring-blue-500/50 scale-110 duration-500"
+                  ? "bg-blue-600 text-white animate-pulse ring-2 ring-blue-500 scale-110 duration-500"
                   : "bg-white/[0.04] border border-white/[0.08] text-blue-400 hover:bg-blue-600/20 hover:border-blue-500"
               }`}
             >
-              <Download size={20} />
+              <Download size={18} />
+              <span className="text-xs font-bold">تثبيت</span>
             </button>
           )}
 
