@@ -28,6 +28,7 @@ interface ScheduleSnapshotProps {
   addRouteDays: boolean;
   annualLeaveBlocks: { id: string; start: string; end: string }[];
   workDurationExtension: number;
+  calendarEvents: { id: string; date: string; title: string; time: string }[];
 }
 
 // ── Shift visual constants ────────────────────────────────────────────────────
@@ -66,6 +67,7 @@ export default function ScheduleSnapshot({
   addRouteDays,
   annualLeaveBlocks,
   workDurationExtension,
+  calendarEvents,
 }: ScheduleSnapshotProps) {
   const monthStart = startOfMonth(month);
   const monthEnd = endOfMonth(month);
@@ -230,6 +232,10 @@ export default function ScheduleSnapshot({
             workDurationExtension,
           );
 
+          const dateStr = format(date, "yyyy-MM-dd");
+          const dayEvents = calendarEvents.filter((ev) => ev.date === dateStr);
+
+          // We use flex column so the cell grows vertically to fit content space
           return (
             <div
               key={i}
@@ -239,12 +245,15 @@ export default function ScheduleSnapshot({
                   : "rgba(255,255,255,0.01)",
                 borderRadius: "8px",
                 padding: "6px 2px",
-                textAlign: "center",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
                 opacity: inMonth ? 1 : 0.12,
                 border: isTodayDay
                   ? "1.5px solid #3b82f6"
                   : "1px solid rgba(255,255,255,0.04)",
                 position: "relative",
+                minHeight: "40px",
               }}
             >
               {isTodayDay && (
@@ -281,6 +290,39 @@ export default function ScheduleSnapshot({
                   }}
                 >
                   {SHIFT_LABEL[shift]}
+                </div>
+              )}
+              {inMonth && dayEvents.length > 0 && (
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: "2px",
+                    marginTop: "4px",
+                    width: "100%",
+                  }}
+                >
+                  {dayEvents.map((ev, idx) => (
+                    <div
+                      key={idx}
+                      style={{
+                        backgroundColor: "rgba(59,130,246,0.15)",
+                        color: "#60a5fa",
+                        fontSize: "5px",
+                        fontWeight: 700,
+                        padding: "2px 0",
+                        borderRadius: "2px",
+                        width: "90%",
+                        margin: "0 auto",
+                        textAlign: "center",
+                        whiteSpace: "nowrap",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                      }}
+                    >
+                      {ev.title}
+                    </div>
+                  ))}
                 </div>
               )}
             </div>

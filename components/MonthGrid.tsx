@@ -19,7 +19,7 @@ import { getHolidayForDate, formatShiftLabel } from "@/lib/dateUtils";
 import { AppSettings } from "@/hooks/useAppSettings";
 import { SystemType, ShiftType } from "@/lib/shiftPatterns";
 import { getShiftForDate } from "@/hooks/useShiftLogic";
-import { Sun, Moon, Coffee, Plane } from "lucide-react";
+import { Sun, Moon, Coffee, Plane, Sunset } from "lucide-react";
 
 interface MonthGridProps {
   settings: AppSettings;
@@ -46,9 +46,12 @@ const getShiftIcons = (
     day: is5x2 ? (
       <Briefcase size={10} className="text-blue-400" />
     ) : (
-      <Sun size={10} className="text-amber-400" />
+      <div className="flex flex-col items-center gap-[1px]">
+        <Sun size={9} className="text-amber-400" />
+        <Moon size={9} className="text-blue-400" />
+      </div>
     ),
-    evening: null,
+    evening: <Sunset size={10} className="text-orange-400" />,
     night: <Moon size={10} className="text-blue-400" />,
     rest: <Coffee size={10} className="text-slate-500" />,
     leave: <Plane size={10} className="text-emerald-400" />,

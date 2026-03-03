@@ -47,11 +47,12 @@ export default function RootLayout({
       lang="ar"
       dir="rtl"
       className="dark"
-      style={{ colorScheme: "dark" }}
+      style={{ colorScheme: "dark", backgroundColor: "#020617" }}
       suppressHydrationWarning
     >
       <body
-        className={`${tajawal.variable} ${jetbrainsMono.variable} antialiased selection:bg-blue-500/30 select-none bg-[#020617] text-[#f8fafc]`}
+        className={`${tajawal.variable} ${jetbrainsMono.variable} antialiased selection:bg-blue-500/30 select-none bg-slate-950 text-slate-50`}
+        style={{ backgroundColor: "#020617" }}
       >
         {/* Google Analytics */}
         <Script

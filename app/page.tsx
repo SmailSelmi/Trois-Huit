@@ -12,7 +12,18 @@ import { useScheduleExport } from "@/hooks/useScheduleExport";
 import { getShiftForDate } from "@/hooks/useShiftLogic";
 import { isSameDay, format, addDays, subDays, startOfMonth } from "date-fns";
 import { arDZ } from "date-fns/locale";
-import { Compass, Plus, Minus, Sun, X } from "lucide-react";
+import {
+  Compass,
+  Plus,
+  Minus,
+  Sun,
+  X,
+  Calendar,
+  Clock,
+  Type,
+  Save,
+  Trash2,
+} from "lucide-react";
 import BottomSheet from "@/components/BottomSheet";
 import ScheduleSnapshot from "@/components/ScheduleSnapshot";
 
@@ -30,6 +41,7 @@ import Onboarding from "@/components/Onboarding";
 import AnnouncementBanner from "@/components/AnnouncementBanner";
 
 import LinksView from "@/components/LinksView";
+import CustomTimePicker from "@/components/CustomTimePicker";
 
 export default function AppShell() {
   const [activeTab, setActiveTab] = useState<NavTab>("HOME");
@@ -253,6 +265,7 @@ export default function AppShell() {
               onDateSelect={setSelectedAgendaDate}
               onShowCalibration={() => setShowCalibrationMenu(true)}
               onShowExtension={() => setShowExtensionMenu(true)}
+              onAddEvent={() => setShowEventMenu(true)}
               onExportSchedule={handleExportSchedule}
               isExporting={isExporting}
             />
@@ -270,34 +283,28 @@ export default function AppShell() {
                         تفاصيل اليوم المحدد
                       </span>
                     </div>
-                    <button
-                      onClick={() => setShowEventMenu(true)}
-                      className="px-4 py-2 bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 rounded-xl text-xs font-bold transition-all flex items-center gap-2"
-                    >
-                      <Plus size={14} /> إضافة حدث
-                    </button>
-                  </div>
-                  <div className="bg-blue-500/5 rounded-3xl border border-blue-500/10 p-1">
-                    <ShiftCard shiftInfo={agendaShiftInfo} isToday={false} />
                   </div>
 
                   {dayEvents.length > 0 && (
-                    <div className="mt-4 flex flex-col gap-2">
+                    <div className="mb-4 flex flex-col gap-2">
                       <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest px-1">
                         الأحداث المجدولة
                       </span>
                       {dayEvents.map((ev) => (
                         <div
                           key={ev.id}
-                          className="p-4 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-between"
+                          className="p-4 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-between group"
                         >
-                          <div className="flex flex-col">
-                            <span className="text-sm font-bold text-white">
+                          <div className="flex flex-col flex-1 pl-4 border-l border-white/5">
+                            <span className="text-sm font-bold text-white mb-1">
                               {ev.title}
                             </span>
-                            <span className="text-xs font-bold text-emerald-400">
-                              {ev.time}
-                            </span>
+                            <div className="flex items-center gap-1.5 text-blue-400">
+                              <Clock size={12} />
+                              <span className="text-xs font-mono font-bold tracking-widest">
+                                {ev.time}
+                              </span>
+                            </div>
                           </div>
                           <button
                             onClick={() => {
@@ -306,14 +313,18 @@ export default function AppShell() {
                               ).filter((e) => e.id !== ev.id);
                               updateSettings({ calendarEvents: newEvents });
                             }}
-                            className="p-2 rounded-xl hover:bg-red-500/10 text-slate-400 hover:text-red-400 transition-all"
+                            className="w-10 h-10 flex items-center justify-center rounded-xl bg-slate-800/50 hover:bg-red-500/10 text-slate-500 hover:text-red-400 transition-all active:scale-95"
                           >
-                            <X size={16} />
+                            <X size={18} />
                           </button>
                         </div>
                       ))}
                     </div>
                   )}
+
+                  <div className="bg-blue-500/5 rounded-3xl border border-blue-500/10 p-1">
+                    <ShiftCard shiftInfo={agendaShiftInfo} isToday={false} />
+                  </div>
                 </div>
               ) : (
                 <div
@@ -477,29 +488,80 @@ export default function AppShell() {
         isOpen={showExtensionMenu}
         onClose={() => setShowExtensionMenu(false)}
         title="تعديل أيام الدورة"
+        headerAction={
+          extensionTab === "work" && settings.workDurationExtension > 0 ? (
+            <button
+              onClick={() => updateSettings({ workDurationExtension: 0 })}
+              className="p-2 bg-red-500/10 hover:bg-red-500/20 rounded-full text-red-400 transition-colors"
+              title="إعادة تعيين للتمديد"
+            >
+              <Trash2 size={20} />
+            </button>
+          ) : extensionTab === "vacation" &&
+            settings.vacationDuration !==
+              (settings.systemType === "5x2_admin" ? 2 : 15) ? (
+            <button
+              onClick={() =>
+                updateSettings({
+                  vacationDuration:
+                    settings.systemType === "5x2_admin" ? 2 : 15,
+                })
+              }
+              className="p-2 bg-red-500/10 hover:bg-red-500/20 rounded-full text-red-400 transition-colors"
+              title="إعادة تعيين للإجازة الافتراضية"
+            >
+              <Trash2 size={20} />
+            </button>
+          ) : null
+        }
       >
         <div className="flex flex-col gap-6 py-4">
           <div className="flex flex-col gap-4">
             <div className="flex bg-white/[0.05] p-1 rounded-2xl mx-4">
               <button
                 onClick={() => setExtensionTab("work")}
-                className={`flex-1 py-2 text-sm font-bold rounded-xl transition-all ${extensionTab === "work" ? "bg-blue-500/20 text-blue-400" : "text-slate-400 hover:text-slate-300 hover:bg-white/[0.02]"}`}
+                className={`flex-1 py-2 text-sm font-bold rounded-xl transition-all ${
+                  extensionTab === "work"
+                    ? "bg-blue-500/20 text-blue-400"
+                    : "text-slate-400 hover:text-slate-300 hover:bg-white/[0.02]"
+                }`}
               >
                 تمديد العمل
               </button>
               <button
                 onClick={() => setExtensionTab("vacation")}
-                className={`flex-1 py-2 text-sm font-bold rounded-xl transition-all ${extensionTab === "vacation" ? "bg-amber-500/20 text-amber-400" : "text-slate-400 hover:text-slate-300 hover:bg-white/[0.02]"}`}
+                className={`flex-1 py-2 text-sm font-bold rounded-xl transition-all ${
+                  extensionTab === "vacation"
+                    ? "bg-amber-500/20 text-amber-400"
+                    : "text-slate-400 hover:text-slate-300 hover:bg-white/[0.02]"
+                }`}
               >
                 تعديل الإجازة
               </button>
             </div>
 
-            <p className="text-[11px] font-bold text-slate-500 leading-relaxed text-center px-4">
-              {extensionTab === "vacation"
-                ? `تعديل رصيد إجازتك الحالي من الدورة الأساسية (${settings.vacationDuration} يوم)`
-                : `تجاوز دورة العمل الـ ${settings.workDuration} يوم مؤقتاً`}
-            </p>
+            {extensionTab === "work" ? (
+              settings.workDurationExtension > 0 && (
+                <div className="flex items-center gap-3 p-4 rounded-2xl bg-blue-500/5 border border-blue-500/10 mx-1">
+                  <Plus size={18} className="text-blue-400 shrink-0" />
+                  <p className="text-[11px] font-bold text-blue-300 leading-tight">
+                    هذه الإضافة ستعمل في دورتك الحالية وتعود لصفر بعد الإجازة.
+                    تم التمديد إلى{" "}
+                    <span className="text-white font-black">
+                      {settings.workDuration + settings.workDurationExtension}
+                    </span>{" "}
+                    يوماً.
+                  </p>
+                </div>
+              )
+            ) : (
+              <div className="flex items-center gap-3 p-4 rounded-2xl bg-amber-500/5 border border-amber-500/10 mx-1">
+                <p className="text-[11px] font-bold text-amber-300 leading-tight">
+                  التعديل هنا سيغير قاعدة الإعدادات مباشرة وسيؤثر على الدورة
+                  بأكملها.
+                </p>
+              </div>
+            )}
 
             <div className="flex items-center justify-between bg-white/[0.02] border border-white/[0.05] rounded-3xl p-3 mx-1">
               <button
@@ -549,39 +611,6 @@ export default function AppShell() {
                 <Plus size={24} />
               </button>
             </div>
-
-            {extensionTab === "vacation" ? (
-              <div className="flex flex-col gap-3 mx-1">
-                <div className="flex items-center gap-3 p-4 rounded-2xl bg-amber-500/5 border border-amber-500/10">
-                  <p className="text-[11px] font-bold text-amber-300 leading-tight">
-                    التعديل هنا سيغير قاعدة الإعدادات مباشرة وسيؤثر على الدورة
-                    بأكملها.
-                  </p>
-                </div>
-              </div>
-            ) : (
-              settings.workDurationExtension > 0 && (
-                <div className="flex flex-col gap-3 mx-1">
-                  <div className="flex items-center gap-3 p-4 rounded-2xl bg-blue-500/5 border border-blue-500/10">
-                    <Plus size={18} className="text-blue-400 shrink-0" />
-                    <p className="text-[11px] font-bold text-blue-300 leading-tight">
-                      هذه الإضافة ستعمل في دورتك الحالية وتعود لصفر بعد الإجازة.
-                      تم التمديد إلى{" "}
-                      <span className="text-white font-black">
-                        {settings.workDuration + settings.workDurationExtension}
-                      </span>{" "}
-                      يوماً.
-                    </p>
-                  </div>
-                  <button
-                    onClick={() => updateSettings({ workDurationExtension: 0 })}
-                    className="w-full py-4 rounded-2xl bg-red-500/10 border border-red-500/10 text-red-400 text-xs font-black uppercase tracking-widest active:scale-95"
-                  >
-                    إعادة تعيين للتمديد
-                  </button>
-                </div>
-              )
-            )}
           </div>
           <button
             onClick={() => setShowExtensionMenu(false)}
@@ -597,40 +626,52 @@ export default function AppShell() {
         onClose={() => setShowEventMenu(false)}
         title="إضافة حدث جديد"
       >
-        <div className="flex flex-col gap-4 py-4 px-1">
+        <div className="flex flex-col gap-5 py-4 px-2">
+          {/* Header Info Banner */}
+          <div className="flex items-center gap-3 p-4 rounded-2xl bg-blue-500/5 border border-blue-500/10">
+            <Calendar size={18} className="text-blue-400 shrink-0" />
+            <p className="text-[11px] font-bold text-blue-300 leading-tight">
+              سيتم إضافة الحدث ليوم{" "}
+              <span className="text-white font-black">
+                {format(selectedAgendaDate, "dd/MM/yyyy")}
+              </span>
+              . ستتلقى إشعاراً مستقبلياً.
+            </p>
+          </div>
+
           <div className="flex flex-col gap-2">
-            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">
+            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1 flex items-center gap-1.5">
+              <Type size={12} />
               عنوان الحدث
             </label>
-            <input
-              type="text"
-              value={eventFormData.title}
-              onChange={(e) =>
-                setEventFormData({ ...eventFormData, title: e.target.value })
-              }
-              placeholder="مثال: موعد طبيب، اجتماع..."
-              className="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-4 text-sm text-white focus:outline-none focus:border-blue-500/50 transition-all"
-            />
+            <div className="relative group">
+              <input
+                type="text"
+                value={eventFormData.title}
+                onChange={(e) =>
+                  setEventFormData({ ...eventFormData, title: e.target.value })
+                }
+                placeholder="مثال: موعد طبيب، اجتماع..."
+                className="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-4 text-sm text-white focus:outline-none focus:border-blue-500/50 focus:bg-blue-500/5 transition-all outline-none"
+              />
+            </div>
           </div>
-          <div className="flex flex-col gap-2">
-            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">
+          <div className="flex flex-col gap-2 relative">
+            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1 flex items-center gap-1.5">
+              <Clock size={12} />
               وقت الحدث
             </label>
-            <input
-              type="time"
+            <CustomTimePicker
               value={eventFormData.time}
-              onChange={(e) =>
-                setEventFormData({ ...eventFormData, time: e.target.value })
-              }
-              className="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-4 text-sm text-white focus:outline-none focus:border-blue-500/50 transition-all [color-scheme:dark]"
+              onChange={(time) => setEventFormData({ ...eventFormData, time })}
             />
           </div>
           <div className="grid grid-cols-2 gap-3 mt-4">
             <button
               onClick={() => setShowEventMenu(false)}
-              className="py-4 bg-white/5 hover:bg-white/10 rounded-2xl text-slate-400 font-black transition-all"
+              className="py-4 bg-white/5 hover:bg-white/10 rounded-2xl text-slate-400 font-black transition-all flex items-center justify-center gap-2"
             >
-              إلغاء
+              <X size={16} /> إلغاء
             </button>
             <button
               onClick={() => {
@@ -646,9 +687,10 @@ export default function AppShell() {
                 setEventFormData({ title: "", time: "10:00" });
                 setShowEventMenu(false);
               }}
-              className="py-4 bg-blue-600 hover:bg-blue-500 rounded-2xl text-white font-black transition-all shadow-[0_0_20px_rgba(37,99,235,0.3)]"
+              disabled={!eventFormData.title.trim()}
+              className="py-4 bg-blue-500 hover:bg-blue-400 disabled:bg-white/5 disabled:text-slate-500 disabled:border-transparent rounded-2xl text-white font-black transition-all shadow-[0_0_20px_rgba(59,130,246,0.3)] disabled:shadow-none flex items-center justify-center gap-2"
             >
-              حفظ الحدث
+              <Save size={16} /> حفظ الحدث
             </button>
           </div>
         </div>
@@ -667,6 +709,7 @@ export default function AppShell() {
         addRouteDays={settings.addRouteDays}
         annualLeaveBlocks={settings.annualLeaveBlocks || []}
         workDurationExtension={settings.workDurationExtension || 0}
+        calendarEvents={settings.calendarEvents || []}
       />
     </main>
   );

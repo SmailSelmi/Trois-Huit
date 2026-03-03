@@ -13,6 +13,7 @@ import {
   Download,
   Loader2,
   Calendar,
+  Sunset,
 } from "lucide-react";
 import MonthGrid from "./MonthGrid";
 import { getHolidayForDate } from "@/lib/dateUtils";
@@ -35,6 +36,7 @@ interface CalendarViewProps {
   onDateSelect: (date: Date) => void;
   onShowCalibration: () => void;
   onShowExtension: () => void;
+  onAddEvent?: () => void;
   onExportSchedule?: (month: Date) => void;
   isExporting?: boolean;
 }
@@ -49,9 +51,12 @@ const getShiftIcons = (
     day: is5x2 ? (
       <Briefcase size={12} className="text-blue-400" />
     ) : (
-      <Sun size={12} className="text-amber-400" />
+      <div className="flex items-center gap-0.5">
+        <Sun size={12} className="text-amber-400" />
+        <Moon size={12} className="text-blue-400" />
+      </div>
     ),
-    evening: null, // User requested to remove icon from evening shifts
+    evening: <Sunset size={12} className="text-orange-400" />,
     night: <Moon size={12} className="text-blue-400" />,
     rest: <Coffee size={12} className="text-slate-500" />,
     leave: <Plane size={12} className="text-emerald-400" />,
@@ -72,6 +77,7 @@ export default function CalendarView({
   onDateSelect,
   onShowCalibration,
   onShowExtension,
+  onAddEvent,
   onExportSchedule,
   isExporting = false,
 }: CalendarViewProps) {
@@ -273,10 +279,10 @@ export default function CalendarView({
       {/* Footer action bar — visible only when month grid is expanded */}
       <>
         {isExpanded && (
-          <div className="flex items-center justify-center gap-3 px-6 pb-4 pt-2 border-t border-white/5 animate-slide-up-modal">
+          <div className="flex items-center justify-center gap-2 px-6 pb-4 pt-4 border-t border-white/5 animate-slide-up-modal">
             <button
               onClick={() => onShowCalibration()}
-              className={`flex-1 p-2.5 rounded-xl transition-all flex items-center justify-center gap-2 relative ${
+              className={`flex-1 p-3 rounded-2xl transition-all flex flex-col items-center justify-center gap-1.5 relative ${
                 showAnnouncement
                   ? "bg-emerald-500/20 border border-emerald-500/50 text-emerald-400 shadow-lg shadow-emerald-500/10"
                   : "bg-emerald-500/5 border border-emerald-500/10 text-emerald-500 hover:bg-emerald-500/10"
@@ -284,10 +290,10 @@ export default function CalendarView({
               title="تصحيح يدوي"
             >
               <Compass
-                size={14}
+                size={18}
                 className={showAnnouncement ? "animate-pulse" : ""}
               />
-              <span className="text-[10px] font-black uppercase">
+              <span className="text-[9px] font-black uppercase line-clamp-1">
                 تصحيح يدوي
               </span>
               {showAnnouncement && (
@@ -297,21 +303,38 @@ export default function CalendarView({
 
             <button
               onClick={() => onShowExtension()}
-              className={`flex-1 p-2.5 rounded-xl transition-all flex items-center justify-center gap-2 relative ${
-                settings.workDurationExtension > 0
+              className={`flex-1 p-3 rounded-2xl transition-all flex flex-col items-center justify-center gap-1.5 relative ${
+                settings.workDurationExtension > 0 ||
+                settings.vacationDuration !==
+                  (systemType === "5x2_admin" ? 2 : 15)
                   ? "bg-blue-500/20 border border-blue-500/50 text-blue-400 shadow-lg shadow-blue-500/10"
                   : "bg-blue-500/5 border border-blue-500/10 text-blue-500 hover:bg-blue-500/10"
               }`}
-              title="تمديد فترة العمل"
+              title="تعديل الدورة"
             >
-              <Plus size={14} />
-              <span className="text-[10px] font-black uppercase">
-                تمديد فترة العمل
+              <Plus size={18} />
+              <span className="text-[9px] font-black uppercase line-clamp-1">
+                تعديل الدورة
               </span>
-              {settings.workDurationExtension > 0 && (
+              {(settings.workDurationExtension > 0 ||
+                settings.vacationDuration !==
+                  (systemType === "5x2_admin" ? 2 : 15)) && (
                 <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-blue-500 border-2 border-slate-950 rounded-full animate-bounce" />
               )}
             </button>
+
+            {onAddEvent && (
+              <button
+                onClick={() => onAddEvent()}
+                className={`flex-1 p-3 rounded-2xl transition-all flex flex-col items-center justify-center gap-1.5 relative bg-amber-500/5 border border-amber-500/10 text-amber-500 hover:bg-amber-500/10`}
+                title="إضافة حدث"
+              >
+                <Calendar size={18} />
+                <span className="text-[9px] font-black uppercase line-clamp-1">
+                  إضافة حدث
+                </span>
+              </button>
+            )}
           </div>
         )}
       </>

@@ -9,6 +9,7 @@ interface BottomSheetProps {
   onClose: () => void;
   title?: string;
   children: React.ReactNode;
+  headerAction?: React.ReactNode;
 }
 
 export default function BottomSheet({
@@ -16,6 +17,7 @@ export default function BottomSheet({
   onClose,
   title,
   children,
+  headerAction,
 }: BottomSheetProps) {
   // We use standard conditional rendering. In a real app, an exit animation
   // would require a delayed unmount hook, but for performance we unmount instantly.
@@ -57,13 +59,16 @@ export default function BottomSheet({
             ) : (
               <div />
             )}
-            <button
-              onClick={onClose}
-              className="p-2 bg-white/5 hover:bg-white/10 rounded-full text-slate-400 transition-colors"
-              aria-label="إغلاق"
-            >
-              <X size={20} />
-            </button>
+            <div className="flex items-center gap-2">
+              {headerAction}
+              <button
+                onClick={onClose}
+                className="p-2 bg-white/5 hover:bg-white/10 rounded-full text-slate-400 transition-colors"
+                aria-label="إغلاق"
+              >
+                <X size={20} />
+              </button>
+            </div>
           </div>
           {children}
         </div>
