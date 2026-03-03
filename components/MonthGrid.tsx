@@ -97,11 +97,13 @@ export default function MonthGrid({
     const touchEndX = e.changedTouches[0].clientX;
     const swipeDistance = touchStartX - touchEndX;
 
-    // LTR swipe logic
+    // RTL swipe logic:
+    // Swiping right (negative distance) -> see content to the "left" (future dates)
+    // Swiping left (positive distance) -> see content to the "right" (past dates)
     if (swipeDistance > 50) {
-      handleNextMonth(); // Swiping left -> next month
+      handlePrevMonth();
     } else if (swipeDistance < -50) {
-      handlePrevMonth(); // Swiping right -> prev month
+      handleNextMonth();
     }
     setTouchStartX(null);
   };
@@ -158,7 +160,6 @@ export default function MonthGrid({
           key={currentMonth.toISOString()}
           onTouchStart={handleTouchStart}
           onTouchEnd={handleTouchEnd}
-          dir="ltr"
           className="grid grid-cols-7 gap-1 animate-fade-in transition-all duration-300"
         >
           {weekdays.map((day, i) => (

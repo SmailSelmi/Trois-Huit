@@ -586,27 +586,27 @@ export default function StatsView({ settings }: StatsViewProps) {
                   </div>
                 </div>
                 <div className="flex-1 grid grid-cols-1 gap-2.5">
-                  {(
-                    Object.entries(stats.distribution) as [ShiftType, number][]
-                  ).map(([type, count]) => (
-                    <div key={type} className="flex items-center gap-2">
-                      <div
-                        className="w-2 h-2 rounded-full shrink-0"
-                        style={{ backgroundColor: currentMeta[type].color }}
-                      />
-                      <span className="text-[10px] font-bold text-slate-400 flex-1">
-                        {formatShiftLabel(currentMeta[type].label)}
-                      </span>
-                      <span className="font-mono text-[10px] font-black text-slate-300">
-                        {n(count)}
-                      </span>
-                      <span className="text-[9px] text-slate-600 w-6 text-left">
-                        {totalDays > 0
-                          ? `${Math.round((count / totalDays) * 100)}٪`
-                          : ""}
-                      </span>
-                    </div>
-                  ))}
+                  {(Object.entries(stats.distribution) as [ShiftType, number][])
+                    .filter(([, count]) => count > 0)
+                    .map(([type, count]) => (
+                      <div key={type} className="flex items-center gap-2">
+                        <div
+                          className="w-2 h-2 rounded-full shrink-0"
+                          style={{ backgroundColor: currentMeta[type].color }}
+                        />
+                        <span className="text-[10px] font-bold text-slate-400 flex-1">
+                          {formatShiftLabel(currentMeta[type].label)}
+                        </span>
+                        <span className="font-mono text-[10px] font-black text-slate-300">
+                          {n(count)}
+                        </span>
+                        <span className="text-[9px] text-slate-600 w-6 text-left">
+                          {totalDays > 0
+                            ? `${Math.round((count / totalDays) * 100)}٪`
+                            : ""}
+                        </span>
+                      </div>
+                    ))}
                 </div>
               </div>
             </GlassCard>

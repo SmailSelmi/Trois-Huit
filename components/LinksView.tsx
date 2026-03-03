@@ -2,7 +2,14 @@
 
 import React from "react";
 import GlassCard from "./GlassCard";
-import { Plane, PlaneTakeoff, Globe, Apple, ExternalLink } from "lucide-react";
+import {
+  Plane,
+  PlaneTakeoff,
+  Globe,
+  Apple,
+  ExternalLink,
+  Smartphone,
+} from "lucide-react";
 
 interface LinkItem {
   title: string;
@@ -14,6 +21,24 @@ interface LinkItem {
 }
 
 const links: LinkItem[] = [
+  {
+    title: "تطبيق محطتي Mahatati (Android)",
+    description:
+      "تطبيق شركة سوقرال للاستعلام عن مواعيد وساعات انطلاق الحافلات واقتناء التذاكر.",
+    url: "https://play.google.com/store/apps/details?id=com.sogral.mobile&hl=fr",
+    Icon: Smartphone,
+    iconColor: "text-emerald-400",
+    cta: "فتح المتجر",
+  },
+  {
+    title: "تطبيق محطتي Mahatati (iOS)",
+    description:
+      "تطبيق شركة سوقرال للاستعلام عن مواعيد وساعات انطلاق الحافلات واقتناء التذاكر.",
+    url: "https://apps.apple.com/fr/app/mahatati/id6754021775",
+    Icon: Apple,
+    iconColor: "text-slate-100",
+    cta: "فتح المتجر",
+  },
   {
     title: "الخطوط الجوية الجزائرية (الموقع الرسمي)",
     description:
